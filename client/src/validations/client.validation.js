@@ -1,4 +1,4 @@
-﻿import { z } from "zod";
+import { z } from "zod";
 
 const optionalEmail = z
   .string()
@@ -6,7 +6,7 @@ const optionalEmail = z
   .refine((value) => !value || z.string().email().safeParse(value).success, "Invalid email address")
   .transform((value) => (value ? value : undefined));
 
-export const employeeSchema = z.object({
+export const clientSchema = z.object({
   firstName: z.string().trim().min(1, "First Name is required"),
   lastName: z.string().trim().min(1, "Last Name is required"),
   username: z.string().trim().min(1, "Username is required"),

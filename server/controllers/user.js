@@ -108,10 +108,16 @@ export const getEmployees = async (req, res, next) => {
 export const createClient = async (req, res, next) => {
     try {
 
-        const findedUser = await User.findOne({ email: req.body.email })
-        if (Boolean(findedUser)) return next(createError(400, 'Email already exist'))
+        const email = typeof req.body.email === 'string' ? req.body.email.trim() : ''
+        if (email) {
+            const findedUser = await User.findOne({ email })
+            if (Boolean(findedUser)) return next(createError(400, 'Email already exist'))
+        }
 
-        const result = await User.create({ ...req.body, role: 'client' })
+        const createData = { ...req.body, role: 'client' }
+        if (!email) delete createData.email
+
+        const result = await User.create(createData)
         res.status(200).json({ result, message: 'client created seccessfully', success: true })
 
     } catch (err) {

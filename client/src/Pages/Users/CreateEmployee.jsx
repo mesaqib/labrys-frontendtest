@@ -49,7 +49,7 @@ const [errors, setErrors] = useState({});
   //////////////////////////////////////// USE EFFECTS /////////////////////////////////////
 
   //////////////////////////////////////// FUNCTIONS /////////////////////////////////////
- const handleSubmit = (e) => {
+ const handleSubmit = async (e) => {
   e.preventDefault();
 
   const result = employeeSchema.safeParse(employeeData);
@@ -67,8 +67,17 @@ const [errors, setErrors] = useState({});
 
   setErrors({});
 
-  dispatch(createEmployee(employeeData, setOpen));
-  setEmployeeData(initialEmployeeState);
+  const payload = result.data;
+
+  try {
+    await dispatch(createEmployee(payload, setOpen));
+    setEmployeeData(initialEmployeeState);
+  } catch (err) {
+    const msg = err?.response?.data?.message || err?.message || "Something went wrong";
+    if (msg.toLowerCase().includes("email")) {
+      setErrors({ email: msg });
+    }
+  }
 };
 
 

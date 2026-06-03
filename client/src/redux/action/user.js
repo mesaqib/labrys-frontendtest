@@ -146,17 +146,19 @@ export const getUser = (userId) => async (dispatch) => {
         dispatch(error(err.message))
     }
 }
-export const createClient = (clientData) => async (dispatch) => {
+export const createClient = (clientData, setOpen) => async (dispatch) => {
     try {
         dispatch(start())
         const { data } = await api.createClient(clientData)
         dispatch(createClientReducer(data.result))
-        navigate('/clients')
+        if (typeof setOpen === 'function') setOpen(false)
         dispatch(end())
+        return data.result
     } catch (err) {
         const message = err?.response?.data?.message || err?.message || "Something went wrong"
         toast.error(message)
         dispatch(error(err.message))
+        throw err
     }
 }
 export const createEmployee = (employeeData, setOpen) => async (dispatch) => {
@@ -164,12 +166,14 @@ export const createEmployee = (employeeData, setOpen) => async (dispatch) => {
         dispatch(start())
         const { data } = await api.createEmployee(employeeData)
         dispatch(createEmployeeReducer(data.result))
-        setOpen(false)
+        if (typeof setOpen === 'function') setOpen(false)
         dispatch(end())
+        return data.result
     } catch (err) {
         const message = err?.response?.data?.message || err?.message || "Something went wrong"
         toast.error(message)
         dispatch(error(err.message))
+        throw err
     }
 }
 export const updateRole = (userId, role) => async (dispatch) => {
