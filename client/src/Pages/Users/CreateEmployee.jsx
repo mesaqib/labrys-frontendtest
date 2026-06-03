@@ -19,6 +19,10 @@ import { PiNotepad, PiXLight } from "react-icons/pi";
 import { CFormSelect } from "@coreui/react";
 import { pakistanCities } from "../../constant";
 
+import { employeeSchema } from "../../validations/emp.validation";
+
+
+
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
@@ -39,21 +43,50 @@ const CreateUser = ({ open, setOpen, scroll }) => {
   //////////////////////////////////////// STATES /////////////////////////////////////
   const [employeeData, setEmployeeData] = useState(initialEmployeeState);
 
+  // const [employeeData, setEmployeeData] = useState(initialEmployeeState);
+const [errors, setErrors] = useState({});
+
   //////////////////////////////////////// USE EFFECTS /////////////////////////////////////
 
   //////////////////////////////////////// FUNCTIONS /////////////////////////////////////
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const { firstName, lastName, username, password, phone, email } = employeeData
-    if (!firstName || !lastName || !username || !password || !phone  )
-      return alert("Make sure to provide all the fields")
-    dispatch(createEmployee(employeeData, setOpen));
-    setEmployeeData(initialEmployeeState)
-  };
+ const handleSubmit = (e) => {
+  e.preventDefault();
 
-  const handleChange = (field, value) => {
-    setEmployeeData((prevFilters) => ({ ...prevFilters, [field]: value, }));
-  };
+  const result = employeeSchema.safeParse(employeeData);
+
+  if (!result.success) {
+    const validationErrors = {};
+
+    result.error.issues.forEach((issue) => {
+      validationErrors[issue.path[0]] = issue.message;
+    });
+
+    setErrors(validationErrors);
+    return;
+  }
+
+  setErrors({});
+
+  dispatch(createEmployee(employeeData, setOpen));
+  setEmployeeData(initialEmployeeState);
+};
+
+
+const handleChange = (field, value) => {
+  setEmployeeData((prevFilters) => ({
+    ...prevFilters,
+    [field]: value,
+  }));
+
+  if (errors[field]) {
+    setErrors((prev) => ({
+      ...prev,
+      [field]: "",
+    }));
+  }
+};
+
+ 
 
   const handleClose = () => {
     setOpen(false);
@@ -88,70 +121,82 @@ const CreateUser = ({ open, setOpen, scroll }) => {
               <tr>
                 <td className="pb-4 text-lg">First Name </td>
                 <td className="pb-4">
-                  <TextField
-                    size="small"
-                    fullWidth
-                    value={employeeData.firstName}
-                    onChange={(e) => handleChange('firstName', e.target.value)}
-                  />
+                 <TextField
+  size="small"
+  fullWidth
+  value={employeeData.firstName}
+  onChange={(e) => handleChange("firstName", e.target.value)}
+  error={!!errors.firstName}
+  helperText={errors.firstName}
+/>
                 </td>
               </tr>
               <tr>
                 <td className="pb-4 text-lg">Last Name </td>
                 <td className="pb-4">
                   <TextField
-                    size="small"
-                    fullWidth
-                    value={employeeData.lastName}
-                    onChange={(e) => handleChange('lastName', e.target.value)}
-                  />
+  size="small"
+  fullWidth
+  value={employeeData.lastName}
+  onChange={(e) => handleChange("lastName", e.target.value)}
+  error={!!errors.lastName}
+  helperText={errors.lastName}
+/>
                 </td>
               </tr>
               <tr>
                 <td className="pb-4 text-lg">User Name </td>
                 <td className="pb-4">
-                  <TextField
-                    size="small"
-                    fullWidth
-                    value={employeeData.username}
-                    onChange={(e) => handleChange('username', e.target.value)}
-                  />
+                 <TextField
+  size="small"
+  fullWidth
+  value={employeeData.username}
+  onChange={(e) => handleChange("username", e.target.value)}
+  error={!!errors.username}
+  helperText={errors.username}
+/>
                 </td>
               </tr>
               <tr>
                 <td className="pb-4 text-lg">Email </td>
                 <td className="pb-4">
-                  <TextField
-                    size="small"
-                    fullWidth
-                    placeholder="Optional"
-                    value={employeeData.email}
-                    onChange={(e) => handleChange('email', e.target.value)}
-                  />
+                 <TextField
+  size="small"
+  fullWidth
+  placeholder="Optional"
+  value={employeeData.email}
+  onChange={(e) => handleChange("email", e.target.value)}
+  error={!!errors.email}
+  helperText={errors.email}
+/>
                 </td>
               </tr>
               <tr>
                 <td className="flex items-start pt-2 text-lg">Password </td>
                 <td className="pb-4">
                   <TextField
-                    type="password"
-                    value={employeeData.password}
-                    onChange={(e) => handleChange("password", e.target.value)}
-                    size="small"
-                    fullWidth
-                  />
+  type="password"
+  size="small"
+  fullWidth
+  value={employeeData.password}
+  onChange={(e) => handleChange("password", e.target.value)}
+  error={!!errors.password}
+  helperText={errors.password}
+/>
                 </td>
               </tr>
               <tr>
                 <td className="flex items-start pt-2 text-lg">Phone </td>
                 <td className="pb-4">
                   <TextField
-                    type="number"
-                    size="small"
-                    value={employeeData.phone}
-                    onChange={(e) => handleChange("phone", e.target.value)}
-                    fullWidth
-                  />
+  type="number"
+  size="small"
+  fullWidth
+  value={employeeData.phone}
+  onChange={(e) => handleChange("phone", e.target.value)}
+  error={!!errors.phone}
+  helperText={errors.phone}
+/>
                 </td>
               </tr>
             </table>
